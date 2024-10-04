@@ -6,7 +6,7 @@ export default function SteamGraph({
   id,
   width = 800,
   height = 400,
-  margin = { top: 20, right: 20, bottom: 30, left: 50 },
+  margin = { top: 10, right: 25, bottom: 15, left: 25 },
   colorScheme = d3.schemeDark2 // Color scheme for categories
 }) {
   // Ensure dates are parsed to Date objects if necessary
@@ -19,7 +19,7 @@ export default function SteamGraph({
   // Define the x-axis scale (time scale)
   const x = d3.scaleTime()
     //.domain(d3.extent(data, d => d.date)) // Extent of the datetime values
-    .domain([new Date(2024, 1, 1), new Date(2024, 10, 31)])
+    .domain([new Date(2024, 5, 1), new Date()])
     .range([margin.left, width - margin.right]);
 
   // Define the y-axis scale (linear scale for stacking)
@@ -29,14 +29,16 @@ export default function SteamGraph({
 
   const series = stack(data); // Generate the stack data
 
+  const keys = series.map(s => s.key) // Categories (artist names)
+
   const y = d3.scaleLinear()
     //.domain([d3.min(series, layer => d3.min(layer, d => d[0])),d3.max(series, layer => d3.max(layer, d => d[1]))])
-    .domain([-40, 40])
+    .domain([-25, 25])
     .range([height - margin.bottom, margin.top]);
 
   // Define the color scale based on artist names
   const color = d3.scaleOrdinal()
-    .domain(series.map(s => s.key)) // Categories (artist names)
+    .domain(keys)
     .range(colorScheme);
 
   // Create the area generator function
@@ -51,6 +53,19 @@ export default function SteamGraph({
     .attr("width", width)
     .attr("height", height);
 
+  // Add x-axis
+  svg.append("g")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(x).tickSize(-height*.7).tickFormat( d3.timeFormat("%b")))
+    .select(".domain").remove();
+
+  svg.selectAll(".tick line").attr("stroke", "#b8b8b8")
+
+  // Add y-axis
+  // svg.append("g")
+  //   .attr("transform", `translate(${margin.left},0)`)
+  //   .call(d3.axisLeft(y));
+
   // JOIN pattern for paths (steamgraph layers)
   const paths = svg.selectAll("path")
     .data(series, d => d.key); // Use key for JOIN
@@ -58,19 +73,40 @@ export default function SteamGraph({
   // Enter + Update
   paths.enter().append("path")
     .merge(paths) // Merge enter and update selections
+    .attr('class', 'area')
     .attr("fill", d => color(d.key))
-    .attr("d", area);
+    .attr("d", area)
+    .on("mouseover", mouseover)
+    .on("mousemove", mousemove)
+    .on("mouseleave", mouseleave);
 
   // Remove old paths
   paths.exit().remove();
 
-  // Add x-axis
-  svg.append("g")
-    .attr("transform", `translate(0,${height - margin.bottom})`)
-    .call(d3.axisBottom(x));
+  // create a tooltip
+  const Tooltip = svg
+    .append("text")
+    .attr("x", 0)
+    .attr("y", 0)
+    .style("opacity", 0)
+    .style("font-size", 17)
+  
+  function mouseover(d) {
+    Tooltip.style("opacity", 1)
+    svg.selectAll(".area").style("opacity", .2)
+    d3.select(this)
+      .style("stroke", "black")
+      .style("opacity", 1)
+  }
 
-  // Add y-axis
-  svg.append("g")
-    .attr("transform", `translate(${margin.left},0)`)
-    .call(d3.axisLeft(y));
+  function mousemove(d, i) {
+    grp = keys[i]
+    Tooltip.text(grp)
+  }
+
+  function mouseleave(d) {
+    Tooltip.style("opacity", 0)
+    svg.selectAll(".area").style("opacity", 1).style("stroke", "none")
+  }
+
 }

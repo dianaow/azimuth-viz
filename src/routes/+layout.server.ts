@@ -15,8 +15,8 @@ export const load = async ({ fetch }: LoadEvent): Promise<FetchDataResponse> => 
 // Helper function to fetch data from multiple APIs
 async function fetchDataFromAPIs(fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>): Promise<FetchDataResponse> {
   const apiEndpoints = [
-    { url: '/api/demographic', key: 'demographic' },
-    { url: '/api/airplay', key: 'airplay' }
+    { url: '/api/demographic/81b0543c-a7c9-444c-8d68-a94948a2c171', key: 'demographic' },
+    { url: '/api/airplay/81b0543c-a7c9-444c-8d68-a94948a2c171', key: 'airplay' }
   ];
 
   try {
