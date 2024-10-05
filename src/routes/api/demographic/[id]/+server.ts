@@ -7,7 +7,7 @@ export const GET: RequestHandler = async ({ params }) => {
   const { data, error } = await supabase
     .from('demographic_data')
     .select('*')
-    .eq('market_id', id)
+    .eq('dma_id', id)
 
   if (error) {
     return json({ error: error.message }, { status: 500 });

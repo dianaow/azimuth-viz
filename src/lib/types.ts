@@ -24,20 +24,8 @@ export interface AirplayData {
   date: string;
 }
 
-export interface DemographicResponse {
-  data: DemographicData[];
-}
-
-export interface MarketResponse {
-  data: MarketData[];
-}
-
-export interface AirplayResponse {
-  data: AirplayData[];
-}
-
 export interface FetchDataResponse {
-  demographic?: DemographicResponse;
-  market?: MarketResponse;
-  airplay?: AirplayResponse;
+  demographic?: DemographicData[];
+  market?: MarketData[];
+  airplay?: AirplayData[];
 }

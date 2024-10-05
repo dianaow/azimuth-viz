@@ -1,21 +1,16 @@
 // @ts-nocheck
 import * as d3 from 'd3';
 
-export default function SteamGraph({
+export default function StreamGraph({
   data, // Array of objects with datetime and categories
   id,
   width = 800,
   height = 400,
-  margin = { top: 10, right: 25, bottom: 15, left: 25 },
+  margin = { top: 10, right: 10, bottom: 15, left: 10 },
   colorScheme = d3.schemeDark2 // Color scheme for categories
 }) {
-  // Ensure dates are parsed to Date objects if necessary
-  data.forEach(d => {
-    d.date = new Date(d.date);
-  });
-
-  data.sort((a, b) => a.date.getTime() - b.date.getTime());
-
+  let grp = ""
+  
   // Define the x-axis scale (time scale)
   const x = d3.scaleTime()
     //.domain(d3.extent(data, d => d.date)) // Extent of the datetime values
@@ -56,7 +51,11 @@ export default function SteamGraph({
   // Add x-axis
   svg.append("g")
     .attr("transform", `translate(0,${height - margin.bottom})`)
-    .call(d3.axisBottom(x).tickSize(-height*.7).tickFormat( d3.timeFormat("%b")))
+    .call(d3.axisBottom(x)
+      .ticks(8)
+      .tickSize(-height*.7)
+      .tickFormat( d3.timeFormat("%b"))
+    )
     .select(".domain").remove();
 
   svg.selectAll(".tick line").attr("stroke", "#b8b8b8")
@@ -101,6 +100,7 @@ export default function SteamGraph({
 
   function mousemove(d, i) {
     grp = keys[i]
+
     Tooltip.text(grp)
   }
 

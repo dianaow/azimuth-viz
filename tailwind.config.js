@@ -2,7 +2,10 @@
 export default {
   content: ['./src/**/*.{html,js,svelte,ts}'],
   theme: {
-    extend: {},
+    borderRadius: {
+      'custom': '0.95rem',
+      'custom-r': '1.25rem'
+    },
   },
   plugins: [],
 }

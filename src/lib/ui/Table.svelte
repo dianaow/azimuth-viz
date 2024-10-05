@@ -13,7 +13,6 @@
   export let colorCodingRules: ColorCodingRules = {};
   export let customSortOrders: CustomSortOrders = {};
   export let textAlignments: TextAlignments = {};
-  export let title = '';
   export let wrapText = false;
   export let onRowClick: (row: RowData) => void;
 
@@ -78,38 +77,36 @@
   };
 </script>
 
-<div class="flex justify-start items-center cursor-pointer">
-  <p class="text-xl pl-4">{title}</p>
-</div>
-
-<table class="mt-4 border-collapse w-full">
-  <thead>
-    <tr>
-      {#each headers as header}
-        <th
-          class="border-b-2 py-1 px-3 text-xs text-neutral-400 cursor-pointer 
-          {wrapText ? '' : 'whitespace-nowrap'} {sortableColumns.includes(header) ? 'hover:text-purple-500' : ''} {getTextAlignment(header)}"
-          on:click={() => handleSort(header)}
-        >
-          <span class="flex">
-            {header}
-            {#if sortableColumns.includes(header)}
-              <span class="ml-1">{getChevron(header)}</span>
-            {/if}
-          </span>
-        </th>
-      {/each}
-    </tr>
-  </thead>
-  <tbody>
-    {#each sortedData as row, index}
-      <tr class="hover:bg-neutral-200" on:click={() => handleRowClick(row)}>
+<div class="w-full h-96 overflow-auto">
+  <table class="mt-4 border-collapse w-full">
+    <thead>
+      <tr class="border-b-2 border-neutral-200">
         {#each headers as header}
-          <td class="py-1 px-3 text-xs {wrapText ? '' : 'whitespace-nowrap'} {applyColorCoding(header, row[header])} {getTextAlignment(header)}">
-            {row[header]}
-          </td>
+          <th
+            class="py-1 px-3 text-xs text-neutral-400 cursor-pointer 
+            {wrapText ? '' : 'whitespace-nowrap'} {sortableColumns.includes(header) ? 'hover:text-purple-500' : ''} {getTextAlignment(header)}"
+            on:click={() => handleSort(header)}
+          >
+            <span class="flex">
+              {header}
+              {#if sortableColumns.includes(header)}
+                <span class="ml-1">{getChevron(header)}</span>
+              {/if}
+            </span>
+          </th>
         {/each}
       </tr>
-    {/each}
-  </tbody>
-</table>
+    </thead>
+    <tbody >
+      {#each sortedData as row, index}
+        <tr class="hover:bg-neutral-200" on:click={() => handleRowClick(row)}>
+          {#each headers as header}
+            <td class="py-1 px-3 text-xs {wrapText ? '' : 'whitespace-nowrap'} {applyColorCoding(header, row[header])} {getTextAlignment(header)}">
+              {row[header]}
+            </td>
+          {/each}
+        </tr>
+      {/each}
+    </tbody>
+  </table>
+</div>
