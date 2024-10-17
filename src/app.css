@@ -13,3 +13,8 @@ html, body {
   writing-mode: vertical-rl; /* Rotates text vertically from right to left */
   transform: rotate(180deg); /* Ensures the text appears correctly */
 }
+
+p, text {
+  color: #fafafa;
+  font-family: "Poppins", sans-serif;
+}

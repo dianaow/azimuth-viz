@@ -1,5 +1,7 @@
-<script lang="ts">
+<script>
   import "../app.css";
 </script>
 
-<slot />
+<main class='relative w-full h-screen overflow-y-hidden'>
+  <slot></slot>
+</main>

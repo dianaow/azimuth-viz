@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 
 export default function StreamGraph({
   data, // Array of objects with datetime and categories
-  id,
+  containerSelector,
   width = 800,
   height = 400,
   margin = { top: 10, right: 10, bottom: 15, left: 10 },
@@ -14,7 +14,7 @@ export default function StreamGraph({
   // Define the x-axis scale (time scale)
   const x = d3.scaleTime()
     //.domain(d3.extent(data, d => d.date)) // Extent of the datetime values
-    .domain([new Date(2024, 5, 1), new Date()])
+    .domain([new Date(2024, 6, 1), new Date(2024, 9, 1)])
     .range([margin.left, width - margin.right]);
 
   // Define the y-axis scale (linear scale for stacking)
@@ -43,16 +43,23 @@ export default function StreamGraph({
     .y1(d => y(d[1]))
     .curve(d3.curveBasis);
 
-  // Select the SVG element and set its width/height
-  const svg = d3.select(id).append("svg")
-    .attr("width", width)
-    .attr("height", height);
+  const container = d3.select(containerSelector);
+
+  let svg = container.select('svg');
+  if (!svg.empty()) {
+    svg.remove();
+  }
+
+  svg = container
+    .append("svg")
+      .attr("width", width)
+      .attr("height", height);
 
   // Add x-axis
   svg.append("g")
     .attr("transform", `translate(0,${height - margin.bottom})`)
     .call(d3.axisBottom(x)
-      .ticks(8)
+      .ticks(5)
       .tickSize(-height*.7)
       .tickFormat( d3.timeFormat("%b"))
     )

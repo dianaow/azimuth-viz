@@ -4,7 +4,8 @@ export default {
   theme: {
     borderRadius: {
       'custom': '0.95rem',
-      'custom-r': '1.25rem'
+      'custom-r': '1.25rem',
+      'custom-b': '1.25rem'
     },
   },
   plugins: [],

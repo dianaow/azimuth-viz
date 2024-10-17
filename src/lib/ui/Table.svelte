@@ -77,14 +77,14 @@
   };
 </script>
 
-<div class="w-full h-96 overflow-auto">
+<div class="w-full h-80 overflow-auto">
   <table class="mt-4 border-collapse w-full">
     <thead>
       <tr class="border-b-2 border-neutral-200">
         {#each headers as header}
           <th
-            class="py-1 px-3 text-xs text-neutral-400 cursor-pointer 
-            {wrapText ? '' : 'whitespace-nowrap'} {sortableColumns.includes(header) ? 'hover:text-purple-500' : ''} {getTextAlignment(header)}"
+            class="py-1 px-3 text-xs text-neutral-300 cursor-pointer 
+            {wrapText ? '' : 'whitespace-nowrap'} {sortableColumns.includes(header) ? 'hover:text-blue-700' : ''} {getTextAlignment(header)}"
             on:click={() => handleSort(header)}
           >
             <span class="flex">
@@ -97,11 +97,11 @@
         {/each}
       </tr>
     </thead>
-    <tbody >
+    <tbody>
       {#each sortedData as row, index}
-        <tr class="hover:bg-neutral-200" on:click={() => handleRowClick(row)}>
+        <tr class="hover:bg-blue-700 cursor-pointer" on:click={() => handleRowClick(row)}>
           {#each headers as header}
-            <td class="py-1 px-3 text-xs {wrapText ? '' : 'whitespace-nowrap'} {applyColorCoding(header, row[header])} {getTextAlignment(header)}">
+            <td class="py-2 px-3 text-xs text-neutral-400 {wrapText ? '' : 'whitespace-nowrap'} {applyColorCoding(header, row[header])} {getTextAlignment(header)}">
               {row[header]}
             </td>
           {/each}

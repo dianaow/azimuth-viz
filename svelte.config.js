@@ -15,7 +15,8 @@ const config = {
 			'$src/*': 'src/*'
 		},
 		adapter: adapter()
-	}
+	},
+	 logLevel: 'debug'
 };
 
 export default config;

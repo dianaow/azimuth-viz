@@ -1,4 +1,4 @@
-import type { AirplayData } from '$src/lib/types.js';
+import type { RawAirplayData, RawDemographicData, StreamGraph, HeatMap, TimeDataType, ChartEntry } from '$src/lib/types.js';
 import * as d3 from 'd3';
 
 interface TransformedRow {
@@ -7,7 +7,7 @@ interface TransformedRow {
 }
 
 // Transform raw data into columns of artist names with total count of songs played per day
-export function transformData(inputData: AirplayData[]): TransformedRow[] {
+function transformData(inputData: RawAirplayData[]): TransformedRow[] {
   // Filter out data points with invalid timestamps
   const filteredData = inputData.filter(d => {
     const dateObject = new Date(d.timestamp);
@@ -24,7 +24,7 @@ export function transformData(inputData: AirplayData[]): TransformedRow[] {
   });
 
   // Explode artist_name array into individual rows
-  let explodedData: AirplayData[] = [];
+  let explodedData: RawAirplayData[] = [];
   parsedData.forEach(row => {
     row.artist_name.forEach(artist => {
       explodedData.push({ ...row, artist_name: [artist] });
@@ -57,6 +57,45 @@ export function transformData(inputData: AirplayData[]): TransformedRow[] {
   return result;
 }
 
+function flattenData(data: TimeDataType[]): HeatMap[] {
+  const flattenedData: HeatMap[] = [];
+  data.forEach(row => {
+    const date = row.date;
+    Object.keys(row).forEach(artist => {
+      if (artist !== 'date') {
+        flattenedData.push({
+          date: date,
+          artist: artist,
+          count: row[artist] as number
+        });
+      }
+    });
+  });
+  return flattenedData;
+}
+
+function sortByDate(data: TimeDataType[]): TimeDataType[] {
+  // Ensure dates are parsed to Date objects if necessary
+  data.forEach(d => {
+    if (typeof d.date === 'string') {
+      d.date = new Date(d.date);
+    }
+  });
+  // Sort the data by date
+  data.sort((a, b) => (a.date as Date).getTime() - (b.date as Date).getTime());
+
+  return data
+}
+
+function calculatePercentages(data: RawDemographicData[],keys: string[]): ChartEntry[] {
+  return data.flatMap(row =>
+    keys.map(key => ({
+      key,
+      value: Math.round((row[key] / row.population_total) * 100)
+    }))
+  );
+}
+
 // Filter transformed data from transformData function to only show the artists with the top played songs
 export function getTopArtists(data: TransformedRow[], topNum: number): TransformedRow[] {
   const artistTotals: { [artist: string]: number } = {};
@@ -87,47 +126,31 @@ export function getTopArtists(data: TransformedRow[], topNum: number): Transform
   return truncatedData;
 }
 
-type TimeDataType = {
-  date: string | Date; // Date can be a string or a Date object
-  [key: string]: any;  // Allow for other properties
-};
-
-export function topAirplay(data: AirplayData[]): TimeDataType[] {
+export function topAirplay(data: RawAirplayData[]): TimeDataType[] {
   const transformedData = transformData(data)
   const tableData = sortByDate(getTopArtists(transformedData, 15))
-  tableData.forEach(d => {
-      if (d.date instanceof Date) {
-          d.date = d.date.toISOString().split('T')[0]; // Only format if it's a Date object
-      }
-  });
-  return tableData
+  return flattenData(tableData)
 }
 
-export function sortByDate(data: TimeDataType[]): TimeDataType[] {
-  // Ensure dates are parsed to Date objects if necessary
-  data.forEach(d => {
-    if (typeof d.date === 'string') {
-      d.date = new Date(d.date);
-    }
-  });
-  // Sort the data by date
-  data.sort((a, b) => (a.date as Date).getTime() - (b.date as Date).getTime());
-
-  return data
-}
-
-type MultipleGraphData = {
-  id: string;
-  data: TimeDataType[];
-};
-
-export function groupAirplayByMarket(data: AirplayData[]): MultipleGraphData[] {
-  let graphsData: MultipleGraphData[] = [];
-  const groupedData = d3.group(data, (d: AirplayData) => d.market_id); // Group by market_id
+export function groupAirplayByMarket(data: RawAirplayData[]): StreamGraph[] {
+  let graphsData: StreamGraph[] = [];
+  const groupedData = d3.group(data, (d: RawAirplayData) => d.market_id); // Group by market_id
   groupedData.forEach((group, marketId) => {
     const transformedData = transformData(group); // Pass each group of data
     const graphData = sortByDate(getTopArtists(transformedData, 6));
     graphsData.push({ id: marketId, data: graphData });
   });
   return graphsData
+}
+
+// Wrapper for age distribution
+export function getAgeDistribution(data: RawDemographicData[]): ChartEntry[] {
+  const ageKeys = ['population_under_18', 'population_20_24', 'population_25_34', 'population_35_44', 'population_45_54', 'population_55_64', 'population_65_plus'];
+  return calculatePercentages(data, ageKeys);
+}
+
+// Wrapper for gender distribution
+export function getGenderDistribution(data: RawDemographicData[]): ChartEntry[] {
+  const genderKeys = ['population_male', 'population_female'];
+  return calculatePercentages(data, genderKeys);
 }

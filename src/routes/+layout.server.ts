@@ -1,75 +1,54 @@
 import type { LoadEvent } from '@sveltejs/kit'; // Import LoadEvent
-import type { FetchDataResponse, AirplayData, DemographicData } from '$lib/types'; // Import your response types
+import type { MainFetchDataResponse, DMAData, MarketData } from '$lib/types'; // Import your response types
 export const ssr = false;
 
-export const load = async ({ fetch }: LoadEvent): Promise<FetchDataResponse> => {
+export const load = async ({ fetch }: LoadEvent): Promise<MainFetchDataResponse> => {
   try {
-    const id = "e87d94dd-3ac0-4295-bcba-1560106dd6f5"
-    const airplay = await fetchAirplayData(id, fetch);
-    //const demographic = await fetchDemographicData(id, fetch);
+    const dmas = await fetchDMAData(fetch);
+    const markets = await fetchMarketData(fetch);
 
-    const data: FetchDataResponse = {
-      //demographic,
-      airplay
+    const data: MainFetchDataResponse = {
+      dmas,
+      markets
     };
-    //const data = {}
+
     return data;
   } catch (error) {
-    return { error: 'Failed to load data' } as FetchDataResponse; // Handle errors
+    return { error: 'Failed to load data' } as unknown as MainFetchDataResponse; // Handle errors
   }
 };
 
-async function fetchDemographicData(dmaId: string, fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>): Promise<DemographicData[]> {
+async function fetchDMAData(fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>): Promise<DMAData[]> {
   
-  const demEndpoint = `/api/demographic/${dmaId}`;
+  const dmaEndpoint = `/api/dma`;
 
   try {
-    const demResponse = await fetch(demEndpoint);
-    if (!demResponse.ok) {
-      throw new Error('Failed to fetch demographic data');
+    const dmaResponse = await fetch(dmaEndpoint);
+    if (!dmaResponse.ok) {
+      throw new Error('Failed to fetch DMA data');
     }
     
-    const demData = await demResponse.json();
-    return demData.data
+    const dmaData = await dmaResponse.json();
+    return dmaData.data
   } catch (error) {
     console.error('Error fetching data:', error);
     throw error;
   }
 }
 
-async function fetchAirplayData(dmaId: string, fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>): Promise<AirplayData[]> {
+
+async function fetchMarketData(fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>): Promise<MarketData[]> {
   
-  const marketEndpoint = `/api/market/${dmaId}`;
+  const dmaEndpoint = `/api/market`;
 
   try {
-    // Step 1: Fetch DMA data to extract market IDs
-    const marketResponse = await fetch(marketEndpoint);
-    if (!marketResponse.ok) {
-      throw new Error('Failed to fetch DMA data');
+    const dmaResponse = await fetch(dmaEndpoint);
+    if (!dmaResponse.ok) {
+      throw new Error('Failed to fetch Market data');
     }
     
-    const marketData = await marketResponse.json();
-
-    // Assuming dmaData contains an array of objects where each object has a market_id field
-    const marketIds = marketData.data.map((market: { id: string }) => market.id);
-
-    // Step 2: Use the extracted market IDs to build URLs for the airplay API
-    const airplayEndpoints = marketIds.map((id:string) => `/api/airplay/${id}`);
-
-    // Step 3: Fetch airplay data for each market
-    const airplayResponses = await Promise.all(
-      airplayEndpoints.map((url:string) => fetch(url))
-    );
-
-    // Check for any response failures
-    if (airplayResponses.some(response => !response.ok)) {
-      throw new Error('Failed to fetch some airplay data');
-    }
-
-    // Step 4: Process the airplay responses into a key-value object
-    const airplayData = await Promise.all(airplayResponses.map(res => res.json()));
-
-    return airplayData.map(d => d.data).flat();
+    const dmaData = await dmaResponse.json();
+    return dmaData.data
   } catch (error) {
     console.error('Error fetching data:', error);
     throw error;
