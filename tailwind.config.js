@@ -7,6 +7,12 @@ export default {
       'custom-r': '1.25rem',
       'custom-b': '1.25rem'
     },
+    extend: {
+      colors: {
+        'custom-dark': '#0B0B0C',
+        'deep-black': '#101315'
+      },
+    },
   },
   plugins: [],
 }

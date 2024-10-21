@@ -6,8 +6,8 @@ export interface DMAData {
 }
 
 export interface RawDemographicData {
-  id: number;
-  dma_id: number;
+  id: string;
+  dma_id: string;
   created_at: Date;
   azimuth_rank: number;
   population_total: number;
@@ -15,9 +15,9 @@ export interface RawDemographicData {
 }
 
 export interface MarketData {
-  id: number;
+  id: string;
   name: string;
-  dma_id: number;
+  dma_id: string;
   coordinates:[number, number][];
 }
 
@@ -36,6 +36,16 @@ export interface VenueData {
   longitude: number;
   website: string;
   capacity: number;
+}
+
+export interface StationData {
+  id: string
+  name: string;
+  market_id: string;
+  format_name: string;
+  image: string;
+  azimuth_panel: boolean;
+  coverage: string;
 }
 
 export interface RawAirplayData {
@@ -84,12 +94,11 @@ export interface DemographicData {
 }
 
 export interface FetchDataResponse {
-  //dmas: DMAData[]; 
   dma: DMAData;
   demographic: DemographicData;
-  market?: MarketData[];
-  //airplay: AirplayData;
-  venues?: VenueData[];
+  markets: MarketData[];
+  venues: VenueData[];
+  stations: StationData[];
 }
 
 export interface MainFetchDataResponse {

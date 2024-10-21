@@ -15,7 +15,7 @@
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-static-element-interactions -->
       <div
-        class="vertical-text text-sm h-40 flex justify-center items-center rounded-r-custom cursor-pointer text-white {activeTab === index ? 'bg-indigo-950 font-semibold' : 'bg-indigo-950 opacity-50'}"
+        class="vertical-text text-sm h-40 flex justify-center items-center rounded-r-custom cursor-pointer text-white bg-custom-dark {activeTab === index ? 'font-semibold' : 'opacity-50'}"
         on:click={() => handleLeftTabClick(index)}
       >
         {tab.toUpperCase()}
@@ -24,7 +24,7 @@
   </div>
 
   <!-- Content area -->
-  <div class="w-11/12 h-full p-4 rounded-custom bg-indigo-950 shadow-lg space-y-3 flex flex-col">
+  <div class="bg-custom-dark w-11/12 h-full p-4 rounded-custom shadow-lg space-y-3 flex flex-col">
     <slot></slot>
   </div>
 </div>

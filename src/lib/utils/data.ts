@@ -1,6 +1,29 @@
 import type { RawAirplayData, RawDemographicData, StreamGraph, HeatMap, TimeDataType, ChartEntry } from '$src/lib/types.js';
 import * as d3 from 'd3';
 
+export async function fetchData<T>(
+  fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>,
+  endpoint: string | ((dmaId: string) => string),
+  errorMessage: string,
+  dmaId?: string
+): Promise<T[]> {
+  
+  const apiEndpoint = typeof endpoint === 'function' ? endpoint(dmaId!) : endpoint;
+
+  try {
+    const response = await fetch(apiEndpoint);
+    if (!response.ok) {
+      throw new Error(errorMessage);
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error;
+  }
+}
+
 interface TransformedRow {
   date: string;
   [artist: string]: number | string;
@@ -88,7 +111,7 @@ function sortByDate(data: TimeDataType[]): TimeDataType[] {
 }
 
 function calculatePercentages(data: RawDemographicData[],keys: string[]): ChartEntry[] {
-  return data.flatMap(row =>
+  return data.flatMap((row:any) =>
     keys.map(key => ({
       key,
       value: Math.round((row[key] / row.population_total) * 100)
@@ -126,7 +149,7 @@ export function getTopArtists(data: TransformedRow[], topNum: number): Transform
   return truncatedData;
 }
 
-export function topAirplay(data: RawAirplayData[]): TimeDataType[] {
+export function topAirplay(data: RawAirplayData[]): HeatMap[] {
   const transformedData = transformData(data)
   const tableData = sortByDate(getTopArtists(transformedData, 15))
   return flattenData(tableData)

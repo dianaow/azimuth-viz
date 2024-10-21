@@ -13,7 +13,7 @@
   onMount(() => {
     chartCleanup = useChart(PieChart, `piechart-${id}`, data, parentContainer, {
       id: 'key',
-      radius: 100,
+      radius: 80,
       colors: {
         "#1d4ed8": "male",
         "#60a5fa": "female"
